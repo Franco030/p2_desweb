@@ -1,28 +1,55 @@
 import { useEffect, useState } from 'react';
 import { Card, Field, MessageBar, MessageBarBody, Select, Spinner, Subtitle2, Text } from '@fluentui/react-components';
+import { CheckmarkCircle24Regular, Clock24Regular, TextBulletListSquare24Regular } from '@fluentui/react-icons';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import PageHeader from '../components/PageHeader';
 import solicitudService from '../../services/SolicitudService';
 import CatalogoService from '../../services/CatalogoService';
 
-export const COLORES_ESTATUS = { Resuelto: '#13A10E', Pendiente: '#F7630C' };
+/** Colores del estatus: [tono claro, tono base] para los degradados de las gráficas. */
+export const COLORES_ESTATUS = {
+  Resuelto: ['#54B054', '#0E7A0D'],
+  Pendiente: ['#FF9A4D', '#DA5B0B'],
+};
 
-function Kpi({ titulo, valor, color }) {
+function Kpi({ titulo, valor, color, icono }) {
   return (
-    <Card className="kpi">
-      <Text size={300} className="texto-secundario">{titulo}</Text>
-      <Text size={800} weight="bold" style={color ? { color } : undefined}>{valor}</Text>
+    <Card className="kpi" style={{ '--kpi-color': color }}>
+      <span className="kpi-icono">{icono}</span>
+      <div className="kpi-texto">
+        <Text size={300} className="texto-secundario">{titulo}</Text>
+        <Text size={800} weight="bold">{valor}</Text>
+      </div>
     </Card>
   );
 }
 
+/** Tooltip con el mismo material de vidrio que las tarjetas. */
 const estiloTooltip = {
   contentStyle: {
-    background: 'var(--colorNeutralBackground1)',
-    border: '1px solid var(--colorNeutralStroke1)',
+    background: 'var(--glass-bg-fuerte)',
+    backdropFilter: 'var(--glass-blur)',
+    WebkitBackdropFilter: 'var(--glass-blur)',
+    border: '1px solid var(--glass-borde)',
     borderRadius: 8,
+    boxShadow: 'var(--glass-sombra)',
+    color: 'var(--colorNeutralForeground1)',
   },
+  labelStyle: { fontWeight: 600, marginBottom: 4 },
 };
+
+function Degradados({ horizontal = false }) {
+  return (
+    <defs>
+      {Object.entries(COLORES_ESTATUS).map(([estatus, [claro, base]]) => (
+        <linearGradient key={estatus} id={`grad-${estatus}${horizontal ? '-h' : ''}`} x1="0" y1="0" x2={horizontal ? '1' : '0'} y2={horizontal ? '0' : '1'}>
+          <stop offset="0%" stopColor={claro} />
+          <stop offset="100%" stopColor={base} />
+        </linearGradient>
+      ))}
+    </defs>
+  );
+}
 
 export default function DashboardPage() {
   const [municipios, setMunicipios] = useState([]);
@@ -65,9 +92,9 @@ export default function DashboardPage() {
       ) : (
         <>
           <div className="kpis">
-            <Kpi titulo="Total de solicitudes" valor={resumen.total} />
-            <Kpi titulo="Resueltas" valor={resumen.resueltas} color={COLORES_ESTATUS.Resuelto} />
-            <Kpi titulo="Pendientes" valor={resumen.pendientes} color={COLORES_ESTATUS.Pendiente} />
+            <Kpi titulo="Total de solicitudes" valor={resumen.total} color="var(--colorBrandForeground1)" icono={<TextBulletListSquare24Regular />} />
+            <Kpi titulo="Resueltas" valor={resumen.resueltas} color={COLORES_ESTATUS.Resuelto[0]} icono={<CheckmarkCircle24Regular />} />
+            <Kpi titulo="Pendientes" valor={resumen.pendientes} color={COLORES_ESTATUS.Pendiente[0]} icono={<Clock24Regular />} />
           </div>
 
           {resumen.total === 0 ? (
@@ -76,38 +103,48 @@ export default function DashboardPage() {
             <div className="graficas">
               <Card className="grafica">
                 <Subtitle2 as="h2">Resueltas vs. pendientes</Subtitle2>
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie
-                      data={datosPastel}
-                      dataKey="value"
-                      nameKey="name"
-                      innerRadius="50%"
-                      outerRadius="80%"
-                      paddingAngle={2}
-                      label={({ value, percent }) => `${value} (${Math.round(percent * 100)}%)`}
-                    >
-                      {datosPastel.map((d) => (
-                        <Cell key={d.name} fill={COLORES_ESTATUS[d.name]} stroke="var(--colorNeutralBackground1)" />
-                      ))}
-                    </Pie>
-                    <Tooltip {...estiloTooltip} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="grafica-dona">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart margin={{ top: 20, bottom: 4 }}>
+                      <Degradados />
+                      <Pie
+                        data={datosPastel}
+                        dataKey="value"
+                        nameKey="name"
+                        innerRadius="58%"
+                        outerRadius="78%"
+                        paddingAngle={3}
+                        cornerRadius={6}
+                        stroke="none"
+                        label={({ value, percent }) => `${value} (${Math.round(percent * 100)}%)`}
+                      >
+                        {datosPastel.map((d) => (
+                          <Cell key={d.name} fill={`url(#grad-${d.name})`} />
+                        ))}
+                      </Pie>
+                      <Tooltip {...estiloTooltip} />
+                      <Legend iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="dona-centro">
+                    <Text size={700} weight="bold">{resumen.total}</Text>
+                    <Text size={200} className="texto-secundario">solicitudes</Text>
+                  </div>
+                </div>
               </Card>
 
               <Card className="grafica grafica-ancha">
                 <Subtitle2 as="h2">Solicitudes por municipio</Subtitle2>
-                <ResponsiveContainer width="100%" height={Math.max(280, resumen.porMunicipio.length * 36)}>
-                  <BarChart data={resumen.porMunicipio} layout="vertical" margin={{ left: 8, right: 16 }}>
+                <ResponsiveContainer width="100%" height={Math.max(280, resumen.porMunicipio.length * 40)}>
+                  <BarChart data={resumen.porMunicipio} layout="vertical" margin={{ left: 8, right: 16 }} barCategoryGap="28%">
+                    <Degradados horizontal />
                     <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="var(--colorNeutralStroke2)" />
-                    <XAxis type="number" allowDecimals={false} tick={{ fill: 'currentColor', fontSize: 12 }} />
-                    <YAxis type="category" dataKey="municipio" width={110} tick={{ fill: 'currentColor', fontSize: 12 }} />
-                    <Tooltip {...estiloTooltip} cursor={{ fill: 'var(--colorNeutralBackground3)' }} />
-                    <Legend />
-                    <Bar dataKey="Resuelto" stackId="a" fill={COLORES_ESTATUS.Resuelto} />
-                    <Bar dataKey="Pendiente" stackId="a" fill={COLORES_ESTATUS.Pendiente} radius={[0, 4, 4, 0]} />
+                    <XAxis type="number" allowDecimals={false} tick={{ fill: 'currentColor', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="municipio" width={110} tick={{ fill: 'currentColor', fontSize: 12 }} axisLine={false} tickLine={false} />
+                    <Tooltip {...estiloTooltip} cursor={{ fill: 'var(--glass-bg)' }} />
+                    <Legend iconType="circle" />
+                    <Bar dataKey="Resuelto" stackId="a" fill="url(#grad-Resuelto-h)" radius={[6, 0, 0, 6]} />
+                    <Bar dataKey="Pendiente" stackId="a" fill="url(#grad-Pendiente-h)" radius={[0, 6, 6, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>
