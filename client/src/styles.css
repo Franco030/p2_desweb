@@ -10,6 +10,17 @@ body,
   min-height: 100%;
 }
 
+html {
+  /* Respaldo antes de que React aplique el color del tema (App.jsx lo sincroniza). */
+  background-color: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #1f1f1f;
+  }
+}
+
 body {
   font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
 }

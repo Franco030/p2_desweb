@@ -27,6 +27,7 @@ function temaInicial() {
 
 export default function App() {
   const [oscuro, setOscuro] = useState(temaInicial);
+  const tema = oscuro ? webDarkTheme : webLightTheme;
 
   useEffect(() => {
     try {
@@ -34,30 +35,37 @@ export default function App() {
     } catch {
       /* sin almacenamiento */
     }
-    document.documentElement.style.colorScheme = oscuro ? 'dark' : 'light';
-  }, [oscuro]);
+    // El fondo del documento usa el mismo token que la app para que el rebote del scroll no muestre otro color.
+    const raiz = document.documentElement.style;
+    raiz.colorScheme = oscuro ? 'dark' : 'light';
+    raiz.backgroundColor = tema.colorNeutralBackground2;
+    raiz.color = tema.colorNeutralForeground1;
+  }, [oscuro, tema]);
 
   return (
-    <FluentProvider theme={oscuro ? webDarkTheme : webLightTheme} className="fluent-root">
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route element={<AppLayout temaOscuro={oscuro} onCambiarTema={() => setOscuro((v) => !v)} />}>
-              <Route index element={<InicioPage />} />
-              <Route path="solicitud/nueva" element={<NuevaSolicitudPage />} />
-              <Route path="solicitud/modificar" element={<ModificarSolicitudPage />} />
-              <Route path="admin/login" element={<LoginPage />} />
-              <Route path="admin" element={<RutaProtegida />}>
-                <Route index element={<DashboardPage />} />
-                <Route path="solicitudes" element={<SolicitudesPage />} />
-                <Route path="catalogos/:tipo" element={<CatalogoPage />} />
+    <FluentProvider theme={tema}>
+      {/* La clase de layout va en un div interno: los portales (tooltips, diálogos) copian la clase del FluentProvider. */}
+      <div className="fluent-root">
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route element={<AppLayout temaOscuro={oscuro} onCambiarTema={() => setOscuro((v) => !v)} />}>
+                <Route index element={<InicioPage />} />
+                <Route path="solicitud/nueva" element={<NuevaSolicitudPage />} />
+                <Route path="solicitud/modificar" element={<ModificarSolicitudPage />} />
+                <Route path="admin/login" element={<LoginPage />} />
+                <Route path="admin" element={<RutaProtegida />}>
+                  <Route index element={<DashboardPage />} />
+                  <Route path="solicitudes" element={<SolicitudesPage />} />
+                  <Route path="catalogos/:tipo" element={<CatalogoPage />} />
+                </Route>
+                <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-        <Toaster toasterId={TOASTER_ID} position="top-end" />
-      </AuthProvider>
+            </Routes>
+          </BrowserRouter>
+          <Toaster toasterId={TOASTER_ID} position="top-end" />
+        </AuthProvider>
+      </div>
     </FluentProvider>
   );
 }
