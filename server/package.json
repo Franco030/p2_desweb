@@ -1,0 +1,27 @@
+{
+  "name": "ticket-turno-server",
+  "version": "1.0.0",
+  "description": "API REST de Ticket de Turno (Express + Sequelize + SQLite)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "seed": "node src/seeders/seed.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "pdfkit": "^0.20.2",
+    "qrcode": "^1.5.4",
+    "sequelize": "^6.37.8",
+    "sqlite3": "^6.0.1",
+    "svg-captcha": "^1.4.0"
+  },
+  "allowScripts": {
+    "sqlite3@6.0.1": true
+  }
+}
