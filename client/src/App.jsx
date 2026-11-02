@@ -35,11 +35,12 @@ export default function App() {
     } catch {
       /* sin almacenamiento */
     }
-    // data-tema selecciona los tokens de vidrio en styles.css (también el fondo del documento).
-    const raiz = document.documentElement;
-    raiz.dataset.tema = oscuro ? 'oscuro' : 'claro';
-    raiz.style.colorScheme = oscuro ? 'dark' : 'light';
-  }, [oscuro]);
+    // El fondo del documento usa el mismo token que la app para que el rebote del scroll no muestre otro color.
+    const raiz = document.documentElement.style;
+    raiz.colorScheme = oscuro ? 'dark' : 'light';
+    raiz.backgroundColor = tema.colorNeutralBackground2;
+    raiz.color = tema.colorNeutralForeground1;
+  }, [oscuro, tema]);
 
   return (
     <FluentProvider theme={tema}>

@@ -10,42 +10,15 @@ body,
   min-height: 100%;
 }
 
-/* ---------- Material Acrylic (Fluent 2): tokens de vidrio por tema ---------- */
-:root,
-html[data-tema='claro'] {
-  --app-base: #eef2f8;
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-bg-fuerte: rgba(255, 255, 255, 0.8);
-  --glass-borde: rgba(255, 255, 255, 0.75);
-  --glass-borde-sutil: rgba(15, 23, 42, 0.08);
-  --glass-sombra: 0 8px 32px rgba(15, 40, 90, 0.08), 0 1px 2px rgba(15, 40, 90, 0.06);
-  --glass-blur: blur(28px) saturate(170%);
-  --blob-1: rgba(15, 108, 189, 0.3);
-  --blob-2: rgba(136, 98, 255, 0.2);
-  --blob-3: rgba(0, 183, 195, 0.2);
-}
-
-html[data-tema='oscuro'] {
-  --app-base: #0b111b;
-  --glass-bg: rgba(36, 40, 50, 0.55);
-  --glass-bg-fuerte: rgba(30, 34, 44, 0.8);
-  --glass-borde: rgba(255, 255, 255, 0.1);
-  --glass-borde-sutil: rgba(255, 255, 255, 0.07);
-  --glass-sombra: 0 8px 32px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
-  --blob-1: rgba(15, 108, 189, 0.38);
-  --blob-2: rgba(136, 98, 255, 0.22);
-  --blob-3: rgba(0, 183, 195, 0.16);
-}
-
-/* Antes de que React fije data-tema, respeta la preferencia del sistema. */
-@media (prefers-color-scheme: dark) {
-  html:not([data-tema]) {
-    --app-base: #0b111b;
-  }
-}
-
 html {
-  background-color: var(--app-base);
+  /* Respaldo antes de que React aplique el color del tema (App.jsx lo sincroniza). */
+  background-color: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #1f1f1f;
+  }
 }
 
 body {
@@ -53,44 +26,9 @@ body {
 }
 
 .fluent-root {
-  position: relative;
-  isolation: isolate;
   min-height: 100vh;
-  background: var(--app-base);
+  background: var(--colorNeutralBackground2);
   color: var(--colorNeutralForeground1);
-}
-
-/* Manchas de color difuminadas detrás del vidrio; fijas para que el desenfoque se note al hacer scroll. */
-.fluent-root::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(42vw 42vw at 5% -5%, var(--blob-1), transparent 70%),
-    radial-gradient(36vw 36vw at 100% 10%, var(--blob-2), transparent 70%),
-    radial-gradient(48vw 48vw at 55% 115%, var(--blob-3), transparent 70%);
-}
-
-/* Superficies de vidrio: tarjetas, diálogos y menú desplegable. */
-.app-main .fui-Card,
-body .fui-DialogSurface,
-body .fui-OverlayDrawer {
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-borde);
-  box-shadow: var(--glass-sombra);
-}
-
-body .fui-DialogSurface,
-body .fui-OverlayDrawer {
-  background: var(--glass-bg-fuerte);
-}
-
-body .fui-DialogSurface {
-  border-radius: var(--borderRadiusXLarge);
 }
 
 /* ---------- Shell ---------- */
@@ -113,10 +51,9 @@ body .fui-DialogSurface {
   align-items: center;
   gap: 8px;
   padding: 0 16px;
-  background: var(--glass-bg-fuerte);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid var(--glass-borde-sutil);
+  background: var(--colorNeutralBackground1);
+  border-bottom: 1px solid var(--colorNeutralStroke2);
+  box-shadow: var(--shadow2);
 }
 
 .brand {
@@ -143,10 +80,8 @@ body .fui-DialogSurface {
   height: calc(100vh - 56px);
   overflow-y: auto;
   padding: 12px 8px;
-  background: var(--glass-bg);
-  -webkit-backdrop-filter: var(--glass-blur);
-  backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--glass-borde-sutil);
+  background: var(--colorNeutralBackground1);
+  border-right: 1px solid var(--colorNeutralStroke2);
 }
 
 .app-main {
@@ -202,8 +137,7 @@ body .fui-DialogSurface {
 }
 
 .nav-item.active {
-  background: var(--glass-bg-fuerte);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), inset 0 0 0 1px var(--glass-borde);
+  background: var(--colorSubtleBackgroundSelected);
   color: var(--colorNeutralForeground1);
   font-weight: 600;
 }
@@ -290,12 +224,6 @@ body .fui-DialogSurface {
 
 .tarjeta-opcion {
   padding: 20px;
-  transition: transform var(--durationNormal) var(--curveDecelerateMid), box-shadow var(--durationNormal) var(--curveDecelerateMid);
-}
-
-.tarjeta-opcion:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glass-sombra), var(--shadow16);
 }
 
 .tarjeta-opcion p {
@@ -492,46 +420,9 @@ body .fui-DialogSurface {
   margin-bottom: 16px;
 }
 
-.app-main .kpi {
-  position: relative;
-  overflow: hidden;
+.kpi {
   padding: 20px;
-  flex-direction: row;
-  align-items: center;
-  gap: 16px;
-}
-
-/* Brillo de color del indicador detrás del vidrio. */
-.kpi::before {
-  content: '';
-  position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: var(--kpi-color);
-  opacity: 0.18;
-  filter: blur(30px);
-  pointer-events: none;
-}
-
-.kpi-icono {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--borderRadiusXLarge);
-  color: var(--kpi-color);
-  background: color-mix(in srgb, var(--kpi-color) 16%, transparent);
-  border: 1px solid color-mix(in srgb, var(--kpi-color) 30%, transparent);
-}
-
-.kpi-texto {
-  display: flex;
-  flex-direction: column;
+  gap: 4px;
 }
 
 .graficas {
@@ -547,21 +438,6 @@ body .fui-DialogSurface {
 
 .grafica h2 {
   margin: 0 0 8px;
-}
-
-.grafica-dona {
-  position: relative;
-}
-
-/* Total en el centro de la dona (la leyenda ocupa ~36px abajo). */
-.dona-centro {
-  position: absolute;
-  inset: 0 0 36px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
 }
 
 .solo-movil {
