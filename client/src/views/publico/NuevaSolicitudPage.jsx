@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, MessageBar, MessageBarBody } from '@fluentui/react-components';
-import { Add24Regular, Checkmark24Regular } from '@fluentui/react-icons';
+import { Add20Regular, Checkmark20Regular } from '@fluentui/react-icons';
 import PageHeader from '../components/PageHeader';
 import SolicitudForm from '../components/SolicitudForm';
 import ComprobanteCard from '../components/ComprobanteCard';
@@ -44,7 +44,7 @@ export default function NuevaSolicitudPage() {
       <>
         <PageHeader titulo="Solicitud registrada" />
         <ComprobanteCard solicitud={registrada} titulo="¡Tu solicitud fue registrada correctamente!">
-          <Button icon={<Add24Regular />} onClick={reiniciar}>Registrar otra</Button>
+          <Button icon={<Add20Regular />} onClick={reiniciar}>Nueva solicitud</Button>
         </ComprobanteCard>
       </>
     );
@@ -60,8 +60,8 @@ export default function NuevaSolicitudPage() {
           )}
           <SolicitudForm solicitud={solicitud} onChange={setSolicitud} errores={errores} catalogos={catalogos} />
           <div className="acciones">
-            <Button type="submit" appearance="primary" icon={<Checkmark24Regular />} disabled={guardando}>
-              {guardando ? 'Registrando...' : 'Registrar solicitud'}
+            <Button type="submit" appearance="primary" icon={<Checkmark20Regular />} disabled={guardando}>
+              {guardando ? 'Registrando solicitud' : 'Registrar solicitud'}
             </Button>
           </div>
         </form>

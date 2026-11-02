@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, Field, Input, MessageBar, MessageBarBody } from '@fluentui/react-components';
-import { ArrowClockwise24Regular, Checkmark24Regular, Search24Regular } from '@fluentui/react-icons';
+import { ArrowClockwise20Regular, Checkmark20Regular, Search20Regular } from '@fluentui/react-icons';
 import PageHeader from '../components/PageHeader';
 import SolicitudForm from '../components/SolicitudForm';
 import ComprobanteCard from '../components/ComprobanteCard';
@@ -69,10 +69,10 @@ export default function ModificarSolicitudPage() {
         <PageHeader titulo="Solicitud actualizada" />
         <ComprobanteCard
           solicitud={actualizada}
-          titulo="Tus datos se guardaron correctamente."
-          aviso={cambioTurno ? `Cambiaste de municipio, por lo que se te asignó el nuevo turno ${actualizada.turno}.` : null}
+          titulo="Tus datos se guardaron correctamente"
+          aviso={cambioTurno ? `Cambiaste de municipio, por lo que se te asignó el nuevo turno ${actualizada.turno}` : null}
         >
-          <Button icon={<ArrowClockwise24Regular />} onClick={reiniciar}>Consultar otra</Button>
+          <Button icon={<ArrowClockwise20Regular />} onClick={reiniciar}>Consultar otra solicitud</Button>
         </ComprobanteCard>
       </>
     );
@@ -88,15 +88,16 @@ export default function ModificarSolicitudPage() {
 
       {!solicitud ? (
         <Card className="panel panel-angosto">
-          <form onSubmit={buscar} className="form-busqueda">
-            <Field label="CURP" required>
+          {/* Ambos campos son obligatorios: el botón se habilita al completarlos (Fluent 2). */}
+          <form onSubmit={buscar} className="form-apilado">
+            <Field label="CURP" hint="18 caracteres">
               <Input
                 value={acceso.curp}
                 maxLength={18}
                 onChange={(_, d) => setAcceso({ ...acceso, curp: d.value.toUpperCase() })}
               />
             </Field>
-            <Field label="Número de turno" required>
+            <Field label="Número de turno">
               <Input
                 type="number"
                 min={1}
@@ -104,9 +105,11 @@ export default function ModificarSolicitudPage() {
                 onChange={(_, d) => setAcceso({ ...acceso, turno: d.value })}
               />
             </Field>
-            <Button type="submit" appearance="primary" icon={<Search24Regular />} disabled={ocupado || !acceso.curp || !acceso.turno}>
-              Buscar solicitud
-            </Button>
+            <div>
+              <Button type="submit" appearance="primary" icon={<Search20Regular />} disabled={ocupado || !acceso.curp || !acceso.turno}>
+                Buscar solicitud
+              </Button>
+            </div>
           </form>
         </Card>
       ) : (
@@ -119,8 +122,8 @@ export default function ModificarSolicitudPage() {
             </MessageBar>
             <SolicitudForm solicitud={solicitud} onChange={setSolicitud} errores={errores} catalogos={catalogos} />
             <div className="acciones">
-              <Button type="submit" appearance="primary" icon={<Checkmark24Regular />} disabled={ocupado}>
-                {ocupado ? 'Guardando...' : 'Guardar cambios'}
+              <Button type="submit" appearance="primary" icon={<Checkmark20Regular />} disabled={ocupado}>
+                {ocupado ? 'Guardando cambios' : 'Guardar cambios'}
               </Button>
               <Button onClick={reiniciar}>Cancelar</Button>
             </div>

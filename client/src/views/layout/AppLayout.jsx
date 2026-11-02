@@ -1,79 +1,110 @@
 import { useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Avatar,
   Button,
-  Divider,
-  DrawerBody,
-  DrawerHeader,
-  DrawerHeaderTitle,
-  OverlayDrawer,
-  Text,
+  Hamburger,
+  NavDivider,
+  NavDrawer,
+  NavDrawerBody,
+  NavDrawerHeader,
+  NavItem,
+  NavSectionHeader,
+  Subtitle2,
   Tooltip,
 } from '@fluentui/react-components';
 import {
-  ClipboardTask24Regular,
-  DataPie24Regular,
-  Dismiss24Regular,
-  DocumentAdd24Regular,
-  DocumentEdit24Regular,
-  HatGraduation24Regular,
-  Home24Regular,
-  Location24Regular,
-  LockClosed24Regular,
-  Navigation24Regular,
-  SignOut24Regular,
-  TextBulletListSquare24Regular,
-  TicketDiagonal24Regular,
-  WeatherMoon24Regular,
-  WeatherSunny24Regular,
+  bundleIcon,
+  ClipboardTask20Filled,
+  ClipboardTask20Regular,
+  DataPie20Filled,
+  DataPie20Regular,
+  DocumentAdd20Filled,
+  DocumentAdd20Regular,
+  DocumentEdit20Filled,
+  DocumentEdit20Regular,
+  HatGraduation20Filled,
+  HatGraduation20Regular,
+  Home20Filled,
+  Home20Regular,
+  Location20Filled,
+  Location20Regular,
+  LockClosed20Filled,
+  LockClosed20Regular,
+  SignOut20Regular,
+  TextBulletListSquare20Filled,
+  TextBulletListSquare20Regular,
+  TicketDiagonal24Filled,
+  WeatherMoon20Regular,
+  WeatherSunny20Regular,
 } from '@fluentui/react-icons';
 import { useAuth } from '../../context/AuthContext';
+import { useTema } from '../../context/TemaContext';
 import useNotificar from '../../hooks/useNotificar';
+import useMediaQuery, { PANTALLA_PEQUENA } from '../../hooks/useMediaQuery';
+
+// Fluent 2: icono Regular en reposo y Filled en el elemento seleccionado.
+const Icono = {
+  inicio: bundleIcon(Home20Filled, Home20Regular),
+  nueva: bundleIcon(DocumentAdd20Filled, DocumentAdd20Regular),
+  modificar: bundleIcon(DocumentEdit20Filled, DocumentEdit20Regular),
+  login: bundleIcon(LockClosed20Filled, LockClosed20Regular),
+  tablero: bundleIcon(DataPie20Filled, DataPie20Regular),
+  solicitudes: bundleIcon(TextBulletListSquare20Filled, TextBulletListSquare20Regular),
+  municipios: bundleIcon(Location20Filled, Location20Regular),
+  niveles: bundleIcon(HatGraduation20Filled, HatGraduation20Regular),
+  asuntos: bundleIcon(ClipboardTask20Filled, ClipboardTask20Regular),
+};
 
 const MENU_PUBLICO = [
-  { to: '/', label: 'Inicio', icon: <Home24Regular />, end: true },
-  { to: '/solicitud/nueva', label: 'Nueva solicitud', icon: <DocumentAdd24Regular /> },
-  { to: '/solicitud/modificar', label: 'Modificar solicitud', icon: <DocumentEdit24Regular /> },
+  { to: '/', label: 'Inicio', Icon: Icono.inicio },
+  { to: '/solicitud/nueva', label: 'Nueva solicitud', Icon: Icono.nueva },
+  { to: '/solicitud/modificar', label: 'Modificar solicitud', Icon: Icono.modificar },
 ];
 
 const MENU_ADMIN = [
-  { to: '/admin', label: 'Tablero', icon: <DataPie24Regular />, end: true },
-  { to: '/admin/solicitudes', label: 'Solicitudes', icon: <TextBulletListSquare24Regular /> },
-  { to: '/admin/catalogos/municipios', label: 'Municipios', icon: <Location24Regular /> },
-  { to: '/admin/catalogos/niveles', label: 'Niveles educativos', icon: <HatGraduation24Regular /> },
-  { to: '/admin/catalogos/asuntos', label: 'Asuntos', icon: <ClipboardTask24Regular /> },
+  { to: '/admin', label: 'Tablero', Icon: Icono.tablero },
+  { to: '/admin/solicitudes', label: 'Solicitudes', Icon: Icono.solicitudes },
+  { to: '/admin/catalogos/municipios', label: 'Municipios', Icon: Icono.municipios },
+  { to: '/admin/catalogos/niveles', label: 'Niveles educativos', Icon: Icono.niveles },
+  { to: '/admin/catalogos/asuntos', label: 'Asuntos', Icon: Icono.asuntos },
 ];
 
-function Menu({ onNavegar }) {
-  const { usuario } = useAuth();
-  const enlace = (item) => (
-    <NavLink key={item.to} to={item.to} end={item.end} className="nav-item" onClick={onNavegar}>
-      {item.icon}
-      <span>{item.label}</span>
-    </NavLink>
-  );
+const MENU_LOGIN = [{ to: '/admin/login', label: 'Iniciar sesión', Icon: Icono.login }];
 
+function BotonNavegacion({ abierto, onClick }) {
   return (
-    <nav className="nav" aria-label="Menú principal">
-      <Text className="nav-section">Portal público</Text>
-      {MENU_PUBLICO.map(enlace)}
-      <Divider className="nav-divider" />
-      <Text className="nav-section">Administración</Text>
-      {usuario ? (
-        MENU_ADMIN.map(enlace)
-      ) : (
-        enlace({ to: '/admin/login', label: 'Iniciar sesión', icon: <LockClosed24Regular /> })
-      )}
-    </nav>
+    <Tooltip content={abierto ? 'Cerrar navegación' : 'Abrir navegación'} relationship="label">
+      <Hamburger onClick={onClick} aria-expanded={abierto} />
+    </Tooltip>
   );
 }
 
-export default function AppLayout({ temaOscuro, onCambiarTema }) {
-  const [abierto, setAbierto] = useState(false);
+export default function AppLayout() {
+  const pequena = useMediaQuery(PANTALLA_PEQUENA);
+  const [abiertoEnLinea, setAbiertoEnLinea] = useState(true);
+  const [abiertoSuperpuesto, setAbiertoSuperpuesto] = useState(false);
   const { usuario, logout } = useAuth();
+  const { oscuro, alternar: alternarTema } = useTema();
   const navigate = useNavigate();
+  const location = useLocation();
   const notificar = useNotificar();
+
+  const abierto = pequena ? abiertoSuperpuesto : abiertoEnLinea;
+  const setAbierto = pequena ? setAbiertoSuperpuesto : setAbiertoEnLinea;
+  const menuAdmin = usuario ? MENU_ADMIN : MENU_LOGIN;
+
+  const ir = (to) => (e) => {
+    e.preventDefault();
+    navigate(to);
+    if (pequena) setAbiertoSuperpuesto(false);
+  };
+
+  const elemento = ({ to, label, Icon }) => (
+    <NavItem key={to} href={to} value={to} icon={<Icon />} onClick={ir(to)}>
+      {label}
+    </NavItem>
+  );
 
   const cerrarSesion = async () => {
     await logout();
@@ -84,56 +115,62 @@ export default function AppLayout({ temaOscuro, onCambiarTema }) {
   return (
     <div className="app-shell">
       <header className="app-header">
-        <Button
-          className="solo-movil"
-          appearance="subtle"
-          icon={<Navigation24Regular />}
-          aria-label="Abrir menú"
-          onClick={() => setAbierto(true)}
-        />
+        <BotonNavegacion abierto={abierto} onClick={() => setAbierto(!abierto)} />
         <NavLink to="/" className="brand">
-          <TicketDiagonal24Regular />
-          <span>Ticket de Turno</span>
+          <TicketDiagonal24Filled />
+          <Subtitle2>Ticket de Turno</Subtitle2>
         </NavLink>
         <div className="header-acciones">
-          <Tooltip content={temaOscuro ? 'Tema claro' : 'Tema oscuro'} relationship="label">
+          <Tooltip content={oscuro ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro'} relationship="label">
             <Button
               appearance="subtle"
-              icon={temaOscuro ? <WeatherSunny24Regular /> : <WeatherMoon24Regular />}
-              onClick={onCambiarTema}
+              icon={oscuro ? <WeatherSunny20Regular /> : <WeatherMoon20Regular />}
+              onClick={alternarTema}
             />
           </Tooltip>
           {usuario && (
             <>
-              <Avatar name={usuario.nombre} size={28} className="solo-escritorio" />
-              <Button appearance="subtle" icon={<SignOut24Regular />} onClick={cerrarSesion}>
-                <span className="solo-escritorio">Cerrar sesión</span>
-              </Button>
+              <Avatar name={usuario.nombre} size={28} className="ocultar-sm" />
+              <Tooltip content="Cerrar sesión" relationship="label">
+                <Button appearance="subtle" icon={<SignOut20Regular />} onClick={cerrarSesion}>
+                  <span className="ocultar-sm">Cerrar sesión</span>
+                </Button>
+              </Tooltip>
             </>
           )}
         </div>
       </header>
 
-      <aside className="app-sidebar solo-escritorio">
-        <Menu />
-      </aside>
+      <div className="app-cuerpo">
+        <NavDrawer
+          type={pequena ? 'overlay' : 'inline'}
+          open={abierto}
+          onOpenChange={(_, { open }) => setAbierto(open)}
+          selectedValue={location.pathname}
+          className="app-nav"
+          aria-label="Navegación"
+        >
+          {pequena && (
+            <NavDrawerHeader>
+              <BotonNavegacion abierto onClick={() => setAbierto(false)} />
+            </NavDrawerHeader>
+          )}
+          <NavDrawerBody>
+            <NavSectionHeader>Portal público</NavSectionHeader>
+            {MENU_PUBLICO.map(elemento)}
+            <NavDivider />
+            <NavSectionHeader>Administración</NavSectionHeader>
+            {menuAdmin.map(elemento)}
+          </NavDrawerBody>
+        </NavDrawer>
 
-      <OverlayDrawer open={abierto} onOpenChange={(_, { open }) => setAbierto(open)} position="start">
-        <DrawerHeader>
-          <DrawerHeaderTitle
-            action={<Button appearance="subtle" aria-label="Cerrar" icon={<Dismiss24Regular />} onClick={() => setAbierto(false)} />}
-          >
-            Menú
-          </DrawerHeaderTitle>
-        </DrawerHeader>
-        <DrawerBody>
-          <Menu onNavegar={() => setAbierto(false)} />
-        </DrawerBody>
-      </OverlayDrawer>
-
-      <main className="app-main">
-        <Outlet />
-      </main>
+        <main className="app-main">
+          {/* Fluent 2: navegación de primer nivel con un fundido rápido. */}
+          <div key={location.pathname} className="transicion-pagina">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

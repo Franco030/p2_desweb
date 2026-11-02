@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, Field, Input, MessageBar, MessageBarBody, Spinner, Title2, Tooltip } from '@fluentui/react-components';
-import { ArrowClockwise24Regular, LockClosed24Regular } from '@fluentui/react-icons';
+import { Button, Card, Field, Input, MessageBar, MessageBarBody, Spinner, Title3, Tooltip } from '@fluentui/react-components';
+import { ArrowClockwise20Regular, LockClosed24Regular } from '@fluentui/react-icons';
 import { useAuth } from '../../context/AuthContext';
 import authService from '../../services/AuthService';
 
@@ -52,23 +52,24 @@ export default function LoginPage() {
       <Card className="login-card">
         <div className="login-encabezado">
           <span className="icono-circulo"><LockClosed24Regular /></span>
-          <Title2 as="h1">Acceso de administradores</Title2>
+          <Title3 as="h1">Acceso de administradores</Title3>
         </div>
-        <form onSubmit={enviar} className="form-login">
+        {/* Formulario de inicio de sesión: todos los campos son obligatorios, sin asterisco (Fluent 2). */}
+        <form onSubmit={enviar} className="form-apilado">
           {error && <MessageBar intent="error"><MessageBarBody>{error}</MessageBarBody></MessageBar>}
-          <Field label="Usuario" required>
+          <Field label="Usuario">
             <Input value={form.usuario} onChange={cambiar('usuario')} autoComplete="username" />
           </Field>
-          <Field label="Contraseña" required>
+          <Field label="Contraseña">
             <Input type="password" value={form.password} onChange={cambiar('password')} autoComplete="current-password" />
           </Field>
-          <Field label="Escribe los caracteres de la imagen" required>
+          <Field label="Código de verificación" hint="Escribe los caracteres que ves en la imagen">
             <div className="captcha">
-              <div className="captcha-imagen" aria-label="Imagen captcha">
+              <div className="captcha-imagen" role="img" aria-label="Imagen con el código de verificación">
                 {captcha ? <span dangerouslySetInnerHTML={{ __html: captcha.svg }} /> : <Spinner size="tiny" />}
               </div>
-              <Tooltip content="Otra imagen" relationship="label">
-                <Button appearance="subtle" icon={<ArrowClockwise24Regular />} onClick={cargarCaptcha} />
+              <Tooltip content="Mostrar otra imagen" relationship="label">
+                <Button appearance="subtle" icon={<ArrowClockwise20Regular />} onClick={cargarCaptcha} />
               </Tooltip>
             </div>
             <Input value={form.captchaTexto} onChange={cambiar('captchaTexto')} maxLength={5} autoComplete="off" />
@@ -78,7 +79,7 @@ export default function LoginPage() {
             appearance="primary"
             disabled={enviando || !captcha || !form.usuario || !form.password || !form.captchaTexto}
           >
-            {enviando ? 'Ingresando...' : 'Iniciar sesión'}
+            {enviando ? 'Iniciando sesión' : 'Iniciar sesión'}
           </Button>
         </form>
       </Card>
